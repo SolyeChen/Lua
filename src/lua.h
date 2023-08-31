@@ -36,13 +36,28 @@
 /*
 ** pseudo-indices
 */
+
+//伪索引，用于访问特定索引的预定义位置或者计算相对索引的辅助宏
+
+//这个宏定义了索引 -10000，用于访问 Lua 状态机的注册表（registry）。
+//注册表是一个全局的 Lua 表，用于存储一些全局共享的数据和对象。
 #define LUA_REGISTRYINDEX	(-10000)
+
+//这个宏定义了索引 -10001，用于访问函数的环境表（environment table）。
+//在 Lua 中，每个函数都可以有一个关联的环境表，用于存储该函数的上值upvalue以及其他相关信息。
 #define LUA_ENVIRONINDEX	(-10001)
+
+//这个宏定义了索引 -10002，用于访问全局环境表（_G）。
+//全局环境表存储了 Lua 程序的全局变量，也可以用于操作全局环境中的其他对象。
 #define LUA_GLOBALSINDEX	(-10002)
+
+//这个宏是一个计算相对索引的辅助宏，用于访问函数的上值（upvalue）。
+//上值是在闭包中被捕获的外部变量，通过这个宏可以访问闭包的上值。
 #define lua_upvalueindex(i)	(LUA_GLOBALSINDEX-(i))
 
 
 /* thread status; 0 is OK */
+//表示线程（协程）的不同状态或错误类型
 #define LUA_YIELD	1
 #define LUA_ERRRUN	2
 #define LUA_ERRSYNTAX	3
@@ -50,6 +65,7 @@
 #define LUA_ERRERR	5
 
 
+//为 lua_State 结构体类型创建一个别名，以便在代码中使用这个别名来声明指向 Lua 状态机的指针，同时也在头文件中隐藏了实际结构体的细节
 typedef struct lua_State lua_State;
 
 typedef int (*lua_CFunction) (lua_State *L);
@@ -67,12 +83,14 @@ typedef int (*lua_Writer) (lua_State *L, const void* p, size_t sz, void* ud);
 /*
 ** prototype for memory-allocation functions
 */
+//内存分配函数原型
 typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 
 /*
 ** basic types
 */
+//基础类型
 #define LUA_TNONE		(-1)
 
 #define LUA_TNIL		0
@@ -88,12 +106,15 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 
 /* minimum Lua stack available to a C function */
+//当你在 Lua 中创建一个新的状态机时，它会分配一个初始容量为 LUA_MINSTACK 的栈
 #define LUA_MINSTACK	20
 
 
 /*
 ** generic extra include file
 */
+//通用额外包含文件
+//用户可以通过定义 LUA_USER_H 宏并提供相应的头文件来扩展 Lua 的功能。
 #if defined(LUA_USER_H)
 #include LUA_USER_H
 #endif
