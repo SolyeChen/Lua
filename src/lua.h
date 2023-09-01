@@ -71,19 +71,17 @@ typedef struct lua_State lua_State;
 typedef int (*lua_CFunction) (lua_State *L);
 
 
-/*
-** functions that read/write blocks when loading/dumping Lua chunks
-** 加载/转储Lua块时读取/写入块的函数
-*/
+/**
+ * @brief 加载/转储Lua块时读取/写入块的函数
+ */
 typedef const char * (*lua_Reader) (lua_State *L, void *ud, size_t *sz);
 
 typedef int (*lua_Writer) (lua_State *L, const void* p, size_t sz, void* ud);
 
 
-/*
-** prototype for memory-allocation functions
-*/
-//内存分配函数原型
+/**
+ * @brief 内存分配函数原型
+ */
 typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 
@@ -120,9 +118,9 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #endif
 
 
+//在编写 Lua 代码时，你可以使用 lua_Number 和 lua_Integer 来表示数字和整数，而不需要关心具体的底层实现。这有助于提高代码的可移植性和可维护性
 /* type of numbers in Lua */
 typedef LUA_NUMBER lua_Number;
-
 
 /* type for integer functions */
 typedef LUA_INTEGER lua_Integer;
@@ -130,19 +128,58 @@ typedef LUA_INTEGER lua_Integer;
 
 
 /*
-** state manipulation
+ * *状态操作函数
+*/
+
+
+/**
+ * @brief 创建新状态机
+ * @param f 内存分配函数
+ * @param ud 用户自定义数据
+ * @return lua_State* 
 */
 LUA_API lua_State *(lua_newstate) (lua_Alloc f, void *ud);
+
+/**
+ * @brief 关闭一个 Lua 状态机（解释器实例），释放相关的内存资源
+ * @param L 需要关闭的lua状态机
+ * @return 无返回值
+ */
 LUA_API void       (lua_close) (lua_State *L);
+
+/**
+ * @brief 从状态机中创建新线程（协程）并返回其指针
+ * @param L 指定的状态机
+ * @return 状态机指针
+ */
 LUA_API lua_State *(lua_newthread) (lua_State *L);
 
+/**
+ * @brief 设置一个自定义的 panic 处理函数，在发生致命错误时，Lua 解释器会调用这个函数，以进行自定义的错误处理
+ * @param L 指定的状态机
+ * @param panicf 指定的错误处理操作
+ * @return 返回原来的错误处理函数
+ */
 LUA_API lua_CFunction (lua_atpanic) (lua_State *L, lua_CFunction panicf);
 
 
-/*
-** basic stack manipulation
+/**
+ * 基本堆栈操作
 */
+
+/**
+ * @brief 获取 Lua 状态机栈顶的索引（也就是栈上的元素数量）
+ * @param L 指定的状态机
+ * @return 返回当前栈上元素的数量
+ */
 LUA_API int   (lua_gettop) (lua_State *L);
+
+/**
+ * @brief 
+ * @param L 
+ * @param idx 
+ * @return 
+ */
 LUA_API void  (lua_settop) (lua_State *L, int idx);
 LUA_API void  (lua_pushvalue) (lua_State *L, int idx);
 LUA_API void  (lua_remove) (lua_State *L, int idx);

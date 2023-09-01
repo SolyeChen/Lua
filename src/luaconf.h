@@ -169,14 +169,11 @@
 #define LUALIB_API	LUA_API
 
 
-/*
-@@ LUAI_FUNC is a mark for all extern functions that are not to be
-@* exported to outside modules.
-@@ LUAI_DATA is a mark for all extern (const) variables that are not to
-@* be exported to outside modules.
-** CHANGE them if you need to mark them in some special way. Elf/gcc
-** (versions 3.2 and later) mark them as "hidden" to optimize access
-** when Lua is compiled as a shared library.
+/**
+ * * LUAI_FUNC 不导出到外部模块的所有外部函数的标记
+ * * LUAI_DATA 不导出到外部模块的所有外部（常量）变量的标记
+ * 如果你需要以某种特殊的方式标记它们，请更改它们
+ * Elf/gcc（3.2及更高版本）将它们标记为“隐藏”，以在Lua编译为共享库时优化访问
 */
 #if defined(luaall_c)
 #define LUAI_FUNC	static

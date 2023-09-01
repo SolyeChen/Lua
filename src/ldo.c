@@ -44,7 +44,7 @@
 struct lua_longjmp {
   struct lua_longjmp *previous;
   luai_jmpbuf b;
-  volatile int status;  /* error code */
+  volatile int status;  /* error code  该变量是易变的，不能进行优化*/
 };
 
 

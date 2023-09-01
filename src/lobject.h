@@ -44,7 +44,7 @@ typedef union GCObject GCObject;
 
 
 /*
-** Common header in struct form
+** 通用的垃圾回收对象头部信息。这个头部信息包括了对象的类型、颜色标记（用于标记对象是否可达）、引用计数等垃圾回收相关的信息。
 */
 typedef struct GCheader {
   CommonHeader;

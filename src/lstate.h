@@ -101,58 +101,62 @@ typedef struct global_State {
 } global_State;
 
 
-/*
-** `per thread' state
+/**
+ * *每个线程的状态
+ * Lua的运行环境
 */
 struct lua_State {
   CommonHeader;
-  lu_byte status;
-  StkId top;  /* first free slot in the stack */
-  StkId base;  /* base of current function */
-  global_State *l_G;
-  CallInfo *ci;  /* call info for current function */
+  lu_byte status;/* 用于表示线程状态，可能是 LUA_OK、LUA_YIELD、LUA_ERRRUN 等之一 */
+  StkId top;  /* 指向当前栈顶元素的指针。在栈上进行操作时，这个指针会随着元素的入栈和出栈而改变。Lua 解释器通过这个指针来管理栈上的元素 */
+  StkId base;  /* 指向当前函数调用的第一个参数的位置。当调用一个 Lua 函数时，它的参数会被放在栈上，base 指示了参数的位置。函数执行完后，这个位置也会被用于存放函数的返回值 */
+  global_State *l_G;/* 全局状态信息的指针，包含了一些全局的配置和状态信息 */
+  CallInfo *ci;  /* 调用帧（Call Info）结构体指针，用于表示函数调用的信息。每次调用一个函数，都会创建一个新的调用帧并将其链接起来，形成一个调用链*/
   const Instruction *savedpc;  /* `savedpc' of current function */
-  StkId stack_last;  /* last free slot in the stack */
-  StkId stack;  /* stack base */
-  CallInfo *end_ci;  /* points after end of ci array*/
-  CallInfo *base_ci;  /* array of CallInfo's */
+  StkId stack_last;  /* 指向栈中最后一个空闲槽（slot）的指针。它通常用于确定新值应该存储在哪个槽位上 */
+  StkId stack;  /* 指向整个 Lua 栈的起始位置的指针 */
+  CallInfo *end_ci;  /* ci数组结束后的点*/
+  CallInfo *base_ci;  /* ci数组 */
   int stacksize;
-  int size_ci;  /* size of array `base_ci' */
-  unsigned short nCcalls;  /* number of nested C calls */
-  unsigned short baseCcalls;  /* nested C calls when resuming coroutine */
-  lu_byte hookmask;
-  lu_byte allowhook;
-  int basehookcount;
-  int hookcount;
-  lua_Hook hook;
-  TValue l_gt;  /* table of globals */
-  TValue env;  /* temporary place for environments */
-  GCObject *openupval;  /* list of open upvalues in this stack */
-  GCObject *gclist;
-  struct lua_longjmp *errorJmp;  /* current error recover point */
-  ptrdiff_t errfunc;  /* current error handling function (stack index) */
+  int size_ci;  /* ci数组大小' */
+  unsigned short nCcalls;  /* 嵌套的C调用数 */
+  unsigned short baseCcalls;  /* 恢复协同程序时的嵌套C调用 */
+  lu_byte hookmask; /* 控制钩子函数何时执行的标志 */
+  lu_byte allowhook; /* 标识当前是否允许执行钩子函数。如果为非零值，表示允许执行钩子函数；如果为零值，表示不允许执行钩子函数 */
+  int basehookcount; /* 存储计数开始时的值，当 hookcount 达到这个值时，会执行钩子函数 */
+  int hookcount; /* 控制何时触发钩子函数的计数  */
+  lua_Hook hook; /*用于设置钩子函数，监控代码执行*/
+  TValue l_gt;  /* 指向全局环境表，允许 Lua 解释器在全局环境中查找和修改全局变量 */
+  TValue env;  /* 存储临时的环境， 在 Lua 中，环境可以用于限定变量的作用范围。这个字段通常用于临时存储函数的环境，例如，当函数闭包（closure）创建时，它的环境可能会存储在这个字段中。*/
+  GCObject *openupval;  /* 指向 GCObject 结构体的指针，用于表示在当前栈上的开放的上值（upvalues）的链表。上值是闭包中引用的外部局部变量，它们可以跨越不同的作用域。这个字段用于管理在当前栈帧上的开放的上值 */
+  GCObject *gclist; /* 指向 GCObject 结构体的指针，用于表示垃圾回收链表 */
+  struct lua_longjmp *errorJmp;  /* 当前的错误恢复点。在 Lua 中，当发生错误时，可以使用长跳转（longjmp）来快速跳出多层函数调用并执行错误处理。errorJmp 用于存储当前的错误恢复点。 */
+  ptrdiff_t errfunc;  /* 当前的错误处理函数在栈上的索引。当发生错误时，Lua 可以调用一个用户指定的错误处理函数来处理错误。errfunc 用于指示当前使用的错误处理函数在栈上的位置。 */
 };
 
 
+/**
+ * 可以通过 G(L) 来访问 Lua 状态机的全局状态信息
+*/
 #define G(L)	(L->l_G)
 
 
-/*
-** Union of all collectable objects
-*/
+/**
+ * @brief 所有可收集（collectable）对象的共同结构
+ */
 union GCObject {
-  GCheader gch;
-  union TString ts;
-  union Udata u;
-  union Closure cl;
-  struct Table h;
-  struct Proto p;
-  struct UpVal uv;
-  struct lua_State th;  /* thread */
+  GCheader gch;         //GC头对象
+  union TString ts;     //字符串对象
+  union Udata u;        //用户数据（userdata）对象
+  union Closure cl;     //闭包对象
+  struct Table h;       //表对象
+  struct Proto p;       //函数原型（prototype）对象
+  struct UpVal uv;      //上值（upvalue）对象
+  struct lua_State th;  //线程（thread）对象
 };
 
 
-/* macros to convert a GCObject into a specific value */
+/* 用于将GCObject转换为特定值的宏 */
 #define rawgco2ts(o)	check_exp((o)->gch.tt == LUA_TSTRING, &((o)->ts))
 #define gco2ts(o)	(&rawgco2ts(o)->tsv)
 #define rawgco2u(o)	check_exp((o)->gch.tt == LUA_TUSERDATA, &((o)->u))
@@ -165,7 +169,7 @@ union GCObject {
 	check_exp((o) == NULL || (o)->gch.tt == LUA_TUPVAL, &((o)->uv))
 #define gco2th(o)	check_exp((o)->gch.tt == LUA_TTHREAD, &((o)->th))
 
-/* macro to convert any Lua object into a GCObject */
+/* 将任何Lua对象转换为GCObject的宏 */
 #define obj2gco(v)	(cast(GCObject *, (v)))
 
 

@@ -23,7 +23,7 @@ typedef LUAI_MEM l_mem;
 
 
 
-/* chars used as small naturals (so that `char' is reserved for characters) */
+/* 用作小自然数的字符（因此“char”是为字符保留的）*/
 typedef unsigned char lu_byte;
 
 
@@ -82,25 +82,25 @@ typedef LUAI_UACNUMBER l_uacNumber;
 
 
 /*
-** type for virtual-machine instructions
-** must be an unsigned with (at least) 4 bytes (see details in lopcodes.h)
+**虚拟机指令的类型
+**必须是无符号的，（至少）有4个字节（请参阅lopcodes.h中的详细信息）
 */
 typedef lu_int32 Instruction;
 
 
 
-/* maximum stack for a Lua function */
+/* Lua函数的最大堆栈 */
 #define MAXSTACK	250
 
 
 
-/* minimum size for the string table (must be power of 2) */
+/* 字符串表的最小大小（必须是2的幂） */
 #ifndef MINSTRTABSIZE
 #define MINSTRTABSIZE	32
 #endif
 
 
-/* minimum size for string buffer */
+/* 字符串缓冲区的最小大小 */
 #ifndef LUA_MINBUFFER
 #define LUA_MINBUFFER	32
 #endif
