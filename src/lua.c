@@ -24,21 +24,33 @@ static lua_State *globalL = NULL;
 static const char *progname = LUA_PROGNAME;
 
 
-
+/**
+ * @brief 在 Lua 执行过程中发生中断时，取消当前的钩子函数并抛出一个带有 "interrupted!" 消息的错误，以通知用户发生了中断事件
+ * @param L 状态机指针
+ * @param ar 调试信息结构体指针 
+ */
 static void lstop (lua_State *L, lua_Debug *ar) {
   (void)ar;  /* unused arg. */
   lua_sethook(L, NULL, 0, 0);
   luaL_error(L, "interrupted!");
 }
 
-
+/**
+ * @brief 
+ * @param i 
+ */
 static void laction (int i) {
+  // 恢复信号的默认行为
   signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
                               terminate process (default action) */
   lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
 
+/**
+ * @brief 打印程序的用法信息
+ * @param  
+ */
 static void print_usage (void) {
   fprintf(stderr,
   "usage: %s [options] [script [args]].\n"
@@ -54,14 +66,23 @@ static void print_usage (void) {
   fflush(stderr);
 }
 
-
+/**
+ * @brief 将错误消息打印到标准错误流
+ * @param pname 程序的名称或标识符
+ * @param msg 要输出的错误消息
+ */
 static void l_message (const char *pname, const char *msg) {
   if (pname) fprintf(stderr, "%s: ", pname);
   fprintf(stderr, "%s\n", msg);
   fflush(stderr);
 }
 
-
+/**
+ * @brief 用于Lua执行完成后的结果检测，判断栈顶元素是否为nil
+ * @param L
+ * @param status 
+ * @return 
+ */
 static int report (lua_State *L, int status) {
   if (status && !lua_isnil(L, -1)) {
     const char *msg = lua_tostring(L, -1);

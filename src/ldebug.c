@@ -53,6 +53,15 @@ static int currentline (lua_State *L, CallInfo *ci) {
 /*
 ** this function can be called asynchronous (e.g. during a signal)
 */
+
+/**
+ * @brief 
+ * @param L 
+ * @param func 
+ * @param mask 
+ * @param count 当指令数达到count时触发钩子
+ * @return 
+ */
 LUA_API int lua_sethook (lua_State *L, lua_Hook func, int mask, int count) {
   if (func == NULL || mask == 0) {  /* turn off hooks? */
     mask = 0;

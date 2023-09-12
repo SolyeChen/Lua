@@ -91,7 +91,11 @@ static void f_luaopen (lua_State *L, void *ud) {
   g->GCthreshold = 4*g->totalbytes;
 }
 
-
+/**
+ * @brief 初始化 Lua 解释器的状态 lua_State 以及全局状态 global_State
+ * @param L 解释器的状态
+ * @param g 全局状态
+ */
 static void preinit_state (lua_State *L, global_State *g) {
   G(L) = g;
   L->stack = NULL;

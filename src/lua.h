@@ -175,25 +175,66 @@ LUA_API lua_CFunction (lua_atpanic) (lua_State *L, lua_CFunction panicf);
 LUA_API int   (lua_gettop) (lua_State *L);
 
 /**
- * @brief 
- * @param L 
- * @param idx 
+ * @brief 设置 Lua 栈的栈顶位置，以便在栈上进行元素的添加、删除或者调整。你可以使用这个函数来调整栈的状态，确保栈上的元素数量满足你的需求
+ * @param L 指定的状态机
+ * @param idx 整数参数，用于指定新的栈顶位置。栈的栈顶位置是指栈顶元素的索引，如果 idx 大于当前栈上的元素数量，将会压入空值（nil）来扩展栈；如果 idx 小于当前栈上的元素数量，将会弹出栈上多余的元素，将栈的栈顶位置移动到指定位置。
  * @return 
  */
 LUA_API void  (lua_settop) (lua_State *L, int idx);
+
+/**
+ * @brief 复制栈上指定索引位置的值并将复制的值推入栈顶
+ * @param L 指定的状态机
+ * @param idx 指定要复制的值的索引位置。函数将栈上的这个位置的值复制一份，并将复制的值推入栈顶
+ * @return 
+ */
 LUA_API void  (lua_pushvalue) (lua_State *L, int idx);
+
+/**
+ * @brief 从栈中移除位于指定索引位置 index 的元素
+ * @param L 指定的状态机
+ * @param idx 指定要移除的位于指定索引位置 idx 的元素。该索引位置之上的元素会依次下移填补空缺
+ * @return 
+ */
 LUA_API void  (lua_remove) (lua_State *L, int idx);
+
+/**
+ * @brief 在栈中的指定索引位置 index 处插入一个新的元素
+ * @param L 指定的状态机
+ * @param idx 指定新的元素的索引位置
+ * @return 
+ */
 LUA_API void  (lua_insert) (lua_State *L, int idx);
+
+/**
+ * @brief 用栈上指定索引位置的元素替换为栈顶的元素，同时去掉栈顶元素
+ * @param L 
+ * @param idx 指定替换元素的索引位置
+ * @return 
+ */
 LUA_API void  (lua_replace) (lua_State *L, int idx);
+
+/**
+ * @brief 确保栈上有足够的空闲槽位来进行操作，可以用于预先分配空间以避免栈溢出
+ * @param L 
+ * @param sz 栈上的空闲槽位不足 extra 个，它会自动扩展栈的大小以满足需求
+ * @return 返回值是否成功扩展栈。如果成功，返回 1；否则返回 0
+ */
 LUA_API int   (lua_checkstack) (lua_State *L, int sz);
 
+/**
+ * @brief 在不同的 Lua 状态机之间传递数据，它是在多线程或嵌套 Lua 环境中进行数据交互的重要工具
+ * @param from 源状态机
+ * @param to 目标状态机
+ * @param n 从源状态机的栈顶开始移动 n 个元素到目标状态机的栈顶，然后在源状态机上删除这些元素
+ * @return 
+ */
 LUA_API void  (lua_xmove) (lua_State *from, lua_State *to, int n);
 
 
 /*
 ** access functions (stack -> C)
 */
-
 LUA_API int             (lua_isnumber) (lua_State *L, int idx);
 LUA_API int             (lua_isstring) (lua_State *L, int idx);
 LUA_API int             (lua_iscfunction) (lua_State *L, int idx);

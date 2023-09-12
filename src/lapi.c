@@ -100,7 +100,7 @@ LUA_API int lua_checkstack (lua_State *L, int size) {
   int res = 1;
   lua_lock(L);
   if (size > LUAI_MAXCSTACK || (L->top - L->base + size) > LUAI_MAXCSTACK)
-    res = 0;  /* stack overflow */
+    res = 0;  /* 栈溢出，返回0 */
   else if (size > 0) {
     luaD_checkstack(L, size);
     if (L->ci->top < L->top + size)
@@ -113,10 +113,13 @@ LUA_API int lua_checkstack (lua_State *L, int size) {
 
 LUA_API void lua_xmove (lua_State *from, lua_State *to, int n) {
   int i;
+  //同一状态机内移动没有意义
   if (from == to) return;
   lua_lock(to);
   api_checknelems(from, n);
+  // /是否属于相同的全局状态 
   api_check(from, G(from) == G(to));
+  //是否有足够的空闲槽位来接收移动的元素
   api_check(from, to->ci->top - to->top >= n);
   // from的栈指针-n,表示栈顶需要移动的元素回退
   from->top -= n;
@@ -209,12 +212,20 @@ LUA_API void lua_insert (lua_State *L, int idx) {
 
 LUA_API void lua_replace (lua_State *L, int idx) {
   StkId o;
+  //锁定 Lua 状态机 L，确保在多线程环境中不会出现竞态条件
   lua_lock(L);
+
   /* explicit test for incompatible code */
   if (idx == LUA_ENVIRONINDEX && L->ci == L->base_ci)
     luaG_runerror(L, "no calling environment");
+
+  //保栈上至少有一个元素可以被替换
   api_checknelems(L, 1);
+
+  //获取要替换的元素的地址
   o = index2adr(L, idx);
+
+  //检查索引 o 是否有效。确保索引是有效的，不越界
   api_checkvalidindex(L, o);
   if (idx == LUA_ENVIRONINDEX) {
     Closure *func = curr_func(L);
@@ -223,15 +234,22 @@ LUA_API void lua_replace (lua_State *L, int idx) {
     luaC_barrier(L, func, L->top - 1);
   }
   else {
+    //元素替换
     setobj(L, o, L->top - 1);
     if (idx < LUA_GLOBALSINDEX)  /* function upvalue? */
       luaC_barrier(L, curr_func(L), L->top - 1);
   }
+  //栈顶指针向下移动一个位置，表示元素被成功替换
   L->top--;
   lua_unlock(L);
 }
 
-
+/**
+ * @brief 将栈上指定索引位置的值复制一份并推入栈顶
+ * @param L 
+ * @param idx 
+ * @return 
+ */
 LUA_API void lua_pushvalue (lua_State *L, int idx) {
   lua_lock(L);
   setobj2s(L, L->top, index2adr(L, idx));

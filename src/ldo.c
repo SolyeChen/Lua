@@ -108,6 +108,14 @@ void luaD_throw (lua_State *L, int errcode) {
 }
 
 // 任何需要保护jmp的调用,都要用这个函数保护
+
+/**
+ * @brief 在 Lua 解释器中执行一个函数 f，并且能够捕获并处理潜在的异常
+ * @param L 
+ * @param f 要执行的函数
+ * @param ud 指向用户数据的指针，可以用于传递额外的参数给函数 f
+ * @return 数执行的状态
+ */
 int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
   struct lua_longjmp lj;
   lj.status = 0;

@@ -87,14 +87,31 @@ int luaO_rawequalObj (const TValue *t1, const TValue *t2) {
 }
 
 
+/**
+ * @brief 将字符串转换为 Lua 数字类型
+ * @param s 
+ * @param result 
+ * @return 
+ */
 int luaO_str2d (const char *s, lua_Number *result) {
   char *endptr;
+  // 将字符串转换为 Lua 数字
   *result = lua_str2number(s, &endptr);
+
+  // 如果转换失败，则返回 0
   if (endptr == s) return 0;  /* conversion failed */
+
+  // 检查是否为十六进制常量
   if (*endptr == 'x' || *endptr == 'X')  /* maybe an hexadecimal constant? */
     *result = cast_num(strtoul(s, &endptr, 16));
-  if (*endptr == '\0') return 1;  /* most common case */
+
+  // 检查是否存在额外的空白字符
+  if (*endptr == '\0') return 1;  /*m大多数情况下 */
+
+  // 跳过额外的空白字符
   while (isspace(cast(unsigned char, *endptr))) endptr++;
+
+  // 如果有无效的尾随字符，则返回 0
   if (*endptr != '\0') return 0;  /* invalid trailing characters? */
   return 1;
 }
